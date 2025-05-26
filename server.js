@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 
 // Initialize Mollie client with your live API key
 const mollieClient = createMollieClient({
-  apiKey: test_ygGsTn9CNQAcHj3vkgNTKuVFcq7Qwk, // Your live API key goes here
+  apiKey: process.env.MOLLIE_API_KEY, // Your live API key goes here
 });
 
 app.use(cors());
