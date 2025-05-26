@@ -27,7 +27,7 @@ app.post('/api/create-mollie-payment', async (req, res) => {
         currency: 'EUR',
         value: amount
       },
-      description: `M2CONNECT Adapter ${color} (${quantity}x)`,
+      description: `M2CONNECT Adapter ${color.charAt(0).toUpperCase() + color.slice(1)} (${quantity}x) - €${amount}`,
       redirectUrl: `${req.protocol}://${req.get('host')}/payment-success`,
       webhookUrl: `${req.protocol}://${req.get('host')}/api/webhook`,
       metadata: {
@@ -36,7 +36,10 @@ app.post('/api/create-mollie-payment', async (req, res) => {
         customer_email: email,
         shipping_address: `${address}, ${city}`,
         quantity: quantity.toString(),
-        color: color
+        color: color,
+        product: `M2CONNECT Adapter ${color.charAt(0).toUpperCase() + color.slice(1)}`,
+        total_items: quantity.toString(),
+        unit_price: '79.99'
       }
     });
 
@@ -68,23 +71,23 @@ app.post('/api/webhook', async (req, res) => {
     
     if (payment.status === 'paid') {
       // Payment successful - process the order
-      console.log('Payment successful!', payment.metadata);
+      console.log('🔥 NEW ORDER RECEIVED! 🔥');
+      console.log('================================');
+      console.log(`📦 Product: M2CONNECT Adapter ${payment.metadata.color.toUpperCase()}`);
+      console.log(`🔢 Quantity: ${payment.metadata.quantity} pieces`);
+      console.log(`👤 Customer: ${payment.metadata.customer_name}`);
+      console.log(`📧 Email: ${payment.metadata.customer_email}`);
+      console.log(`📍 Address: ${payment.metadata.shipping_address}`);
+      console.log(`💰 Amount: €${payment.amount.value}`);
+      console.log(`🆔 Order ID: ${payment.metadata.order_id}`);
+      console.log(`⏰ Time: ${new Date().toLocaleString('de-DE')}`);
+      console.log('================================');
       
       // Send confirmation email
       // await sendConfirmationEmail(payment.metadata);
       
       // Update order status in database
       // await updateOrderStatus(paymentId, 'paid');
-      
-      // Log order details for fulfillment
-      console.log(`Order Details:
-        - Product: M2CONNECT Adapter ${payment.metadata.color}
-        - Quantity: ${payment.metadata.quantity}
-        - Customer: ${payment.metadata.customer_name}
-        - Email: ${payment.metadata.customer_email}
-        - Address: ${payment.metadata.shipping_address}
-        - Amount: €${payment.amount.value}
-      `);
     }
     
     res.status(200).send('OK');
